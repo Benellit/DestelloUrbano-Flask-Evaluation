@@ -1,4 +1,4 @@
-Destello Urbano
+Destello Urbano / Enlace a la app en vivo https://benellit.pythonanywhere.com/ 
 
 Destello Urbano es una plataforma web de monitoreo ciudadano que permite visualizar zonas seguras y reportar incidentes en tiempo real sobre un mapa interactivo nocturno. Diseñado para mejorar la seguridad en la movilidad urbana repartidores, peatones u otros mediante inteligencia colectiva.
 
