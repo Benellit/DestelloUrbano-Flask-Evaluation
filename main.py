@@ -6,18 +6,21 @@ app = Flask(__name__)
 # Simulación de Base de Datos
 incidentes_db = []
 
+# RUTA 1: Landing Page (La portada)
 @app.route('/')
+def index():
+    # Asegúrate de que index.html esté en la carpeta templates (no en subcarpetas)
+    return render_template('index.html')
+
+# RUTA 2: El Mapa (La aplicación)
+@app.route('/map')
 def map_view():
-    # CORRECCIÓN: Agregamos 'map/' antes del nombre del archivo
-    # porque en tu carpeta templates lo tienes dentro de una subcarpeta "map"
+    # Esta busca en templates/map/map.html
     return render_template('map/map.html')
 
+# API: Guardar Puntos
 @app.route('/guardar_punto', methods=['POST'])
 def guardar_punto():
-    """
-    Endpoint que recibe coordenadas y simula un guardado.
-    Incluye un delay artificial para probar el estado 'Cargando...' en el frontend.
-    """
     data = request.get_json()
     
     if not data or 'lat' not in data or 'lng' not in data:
@@ -26,8 +29,8 @@ def guardar_punto():
     lat = data['lat']
     lng = data['lng']
     
-    # Simulamos latencia de red (1.5 segundos) para ver el spinner
-    time.sleep(1.5)
+    # Simulación de latencia
+    time.sleep(1.0)
     
     nuevo_incidente = {
         'id': len(incidentes_db) + 1,
@@ -36,8 +39,6 @@ def guardar_punto():
         'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
     }
     incidentes_db.append(nuevo_incidente)
-    
-    # print(f"✅ Punto guardado: {nuevo_incidente}") # Opcional: ver en consola
     
     return jsonify({
         'status': 'success', 
