@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Destello Urbano: Plataforma de seguridad colaborativa y reporte de incidentes en tiempo real.">
+    <title>Destello Urbano - La ciudad bajo tu control</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN para prototipado rápido, considerar compilación para producción) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        destello: {
+                            dark: '#0f172a', 
+                            blue: '#1e3a8a', 
+                            amber: '#f59e0b',
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                    },
+                    keyframes: {
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: '1', filter: 'drop-shadow(0 0 5px rgba(245, 158, 11, 0.6))' },
+                            '50%': { opacity: '.6', filter: 'drop-shadow(0 0 1px rgba(245, 158, 11, 0.2))' },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Optimizaciones visuales específicas */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white font-sans overflow-x-hidden relative min-h-screen selection:bg-destello-amber selection:text-slate-900">
+
+    <!-- 1. BACKGROUND MAP (SVG) -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-40">
+        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="smallGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#334155" stroke-width="0.5"/>
+                </pattern>
+                <pattern id="grid" width="160" height="160" patternUnits="userSpaceOnUse">
+                    <rect width="160" height="160" fill="url(#smallGrid)"/>
+                    <path d="M 160 0 L 0 0 0 160" fill="none" stroke="#475569" stroke-width="1.5"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="#0f172a" />
+            <rect width="100%" height="100%" fill="url(#grid)" />
+            <path d="M -100 600 Q 400 300 800 500 T 1600 200" fill="none" stroke="#1e3a8a" stroke-width="3" opacity="0.5" />
+            <path d="M 200 -100 Q 500 400 200 900" fill="none" stroke="#1e3a8a" stroke-width="3" opacity="0.5" />
+        </svg>
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/50 to-slate-950/90"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#020617_100%)]"></div>
+    </div>
+
+    <!-- 2. NAVBAR -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-white/10 bg-slate-900/60 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 cursor-pointer group">
+                    <div class="relative w-8 h-8 flex items-center justify-center">
+                        <div class="absolute inset-0 bg-destello-amber rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity animate-pulse-glow"></div>
+                        <!-- Logo SVG -->
+                        <svg class="w-6 h-6 text-destello-amber animate-pulse-glow" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                           <path d="M12 2C12.55 2 13 2.45 13 3V4C13 4.55 12.55 5 12 5C11.45 5 11 4.55 11 4V3C11 2.45 11.45 2 12 2ZM17.66 4.93C17.94 4.45 18.56 4.3 19.04 4.57C19.5 4.85 19.67 5.47 19.4 5.95L18.5 7.5C18.2 8 17.6 8.15 17.1 7.87C16.65 7.6 16.5 7 16.75 6.5L17.66 4.93ZM6.34 4.93L7.25 6.5C7.5 6.98 7.35 7.6 6.88 7.87C6.4 8.15 5.8 8 5.5 7.5L4.6 5.95C4.33 5.47 4.5 4.85 4.96 4.57C5.44 4.3 6.06 4.45 6.34 4.93ZM12 7C9.24 7 7 9.24 7 12C7 13.89 8.05 15.56 9.61 16.44C10.09 18.17 11.23 21.1 11.5 21.7C11.63 21.89 11.83 22 12 22C12.17 22 12.37 21.89 12.5 21.7C12.77 21.1 13.91 18.17 14.39 16.44C15.95 15.56 17 13.89 17 12C17 9.24 14.76 7 12 7Z" />
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-white">Destello<span class="text-destello-amber font-light">Urbano</span></span>
+                </div>
+
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Mapa en vivo</a>
+                    <a href="#" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Reportes</a>
+                    <a href="#" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Comunidad</a>
+                </div>
+
+                <!-- Auth -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#" class="text-sm font-medium text-white/80 hover:text-white transition-colors">Iniciar Sesión</a>
+                    <a href="#" class="px-4 py-2 text-sm font-bold text-slate-900 bg-white rounded-full hover:bg-slate-200 transition-all shadow-[0_0_15px_rgba(255,255,255,0.3)]">Regístrate</a>
+                </div>
+                
+                <button class="md:hidden text-slate-300"><i data-lucide="menu" class="w-6 h-6"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 3. HERO CONTENT -->
+    <main class="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-4 sm:px-6 lg:px-8 overflow-hidden">
+        
+        <!-- Glow Effect -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-destello-blue rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
+
+        <div class="relative w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- Left Column: Copy -->
+            <div class="lg:col-span-7 text-center lg:text-left space-y-8 pt-10 lg:pt-0">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-destello-blue/30 border border-destello-blue/50 backdrop-blur-sm">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-destello-amber opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-destello-amber"></span>
+                    </span>
+                    <span class="text-xs font-semibold text-blue-100 tracking-wide uppercase">Sistema activo en tu zona</span>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.1]">
+                    La ciudad bajo <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-destello-amber">tu control.</span>
+                </h1>
+                
+                <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                    Visualiza reportes de seguridad, estado de rutas y presencia de fauna en tiempo real.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                    <!-- CTA Button Updated with Universal Icon (Map Pin) -->
+                    <button class="group relative px-8 py-4 bg-destello-amber text-slate-900 rounded-full font-bold text-lg shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] hover:bg-amber-400 transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden">
+                        <span class="relative z-10">Explorar Mapa</span>
+                        <!-- CHANGE: Icon updated to map-pin for universality -->
+                        <i data-lucide="map-pin" class="w-5 h-5 relative z-10 group-hover:-translate-y-1 transition-transform duration-300"></i>
+                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                    </button>
+                    
+                    <button class="px-8 py-4 bg-slate-800/50 text-white rounded-full font-semibold text-lg border border-slate-700 hover:bg-slate-800 hover:border-slate-500 backdrop-blur-md transition-all duration-300">
+                        Cómo funciona
+                    </button>
+                </div>
+
+                <!-- Stats -->
+                <div class="flex gap-8 justify-center lg:justify-start pt-8 border-t border-slate-800/50 mt-8">
+                    <div>
+                        <div class="text-2xl font-bold text-white">12k+</div>
+                        <div class="text-sm text-slate-500">Usuarios</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-white">850</div>
+                        <div class="text-sm text-slate-500">Alertas</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-white">98%</div>
+                        <div class="text-sm text-slate-500">Precisión</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Elements -->
+            <div class="lg:col-span-5 relative h-[500px] w-full flex items-center justify-center lg:justify-end">
+                
+                <!-- Radar Rings -->
+                <div class="absolute w-[400px] h-[400px] border border-destello-blue/20 rounded-full animate-[spin_10s_linear_infinite]">
+                    <div class="absolute top-0 left-1/2 w-4 h-4 bg-destello-blue rounded-full -translate-x-1/2 -translate-y-1/2 shadow-[0_0_15px_#1e3a8a]"></div>
+                </div>
+                <div class="absolute w-[300px] h-[300px] border border-dashed border-destello-blue/30 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+
+                <!-- Floating Card 1 -->
+                <div class="absolute top-20 right-4 lg:right-10 bg-slate-900/80 backdrop-blur-xl border-l-4 border-destello-amber rounded-r-lg p-4 w-72 shadow-2xl animate-float transform transition-all hover:scale-105 cursor-pointer z-20">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-destello-amber/20 rounded-lg shrink-0"><i data-lucide="dog" class="w-6 h-6 text-destello-amber"></i></div>
+                        <div>
+                            <h3 class="text-white font-semibold text-sm">Perros sueltos</h3>
+                            <p class="text-slate-400 text-xs mt-1">Av. Libertad y Calle 10</p>
+                            <div class="flex items-center gap-1 mt-2 text-[10px] text-slate-500"><i data-lucide="clock" class="w-3 h-3"></i> Hace 10 min</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Card 2 -->
+                <div class="absolute bottom-32 left-4 lg:left-0 bg-slate-900/80 backdrop-blur-xl border-l-4 border-red-500 rounded-r-lg p-4 w-64 shadow-2xl animate-float-delayed transform transition-all hover:scale-105 cursor-pointer z-10">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-red-500/20 rounded-lg shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5 text-red-500"></i></div>
+                        <div>
+                            <h3 class="text-white font-semibold text-sm">Zona Obstruida</h3>
+                            <p class="text-slate-400 text-xs mt-1">Obras en Carril Derecho</p>
+                            <div class="flex items-center gap-1 mt-2 text-[10px] text-slate-500"><i data-lucide="users" class="w-3 h-3"></i> 5 reportes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Card 3 -->
+                <div class="absolute bottom-10 right-10 bg-slate-900/80 backdrop-blur-xl border-l-4 border-emerald-500 rounded-r-lg p-3 w-56 shadow-lg transform transition-all hover:scale-105 cursor-pointer opacity-80 hover:opacity-100">
+                    <div class="flex items-center gap-3">
+                        <div class="p-1.5 bg-emerald-500/20 rounded-md shrink-0"><i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i></div>
+                        <div>
+                            <h3 class="text-white font-medium text-xs">Ruta Segura</h3>
+                            <p class="text-emerald-400 text-[10px]">Iluminación óptima</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-slate-800 bg-slate-950/80 backdrop-blur-sm py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm flex items-center justify-center gap-2">© 2024 Destello Urbano.</p>
+        </div>
+    </footer>
+
+    <!-- Init Icons -->
+    <script>lucide.createIcons();</script>
+</body>
+</html>
